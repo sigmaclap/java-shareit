@@ -11,45 +11,27 @@ import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class ErrorHandler {
-    @ExceptionHandler
+    @ExceptionHandler({InvalidDataException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleInvalidDataException(final InvalidDataException e) {
+    public ErrorResponse handleInvalidDataException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({ItemAlreadyExistException.class, UserAlreadyExistException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleFilmAlreadyExistException(final ItemAlreadyExistException e) {
+    public ErrorResponse handleFilmAlreadyExistException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleUserAlreadyExistException(final UserAlreadyExistException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
+    @ExceptionHandler({ItemNotFoundException.class, UserNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleFilmNotFoundException(final ItemNotFoundException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotFoundException(final UserNotFoundException e) {
+    public ErrorResponse handleFilmNotFoundException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodValidException(final MethodArgumentNotValidException e) {
-        return new ErrorResponse("Error validation Data");
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodValidException(final ConstraintViolationException e) {
         return new ErrorResponse("Error validation Data");
     }
 

@@ -21,8 +21,9 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     private static final String ERROR_USER_NOT_FOUND = "User ID not found";
     private final Map<Long, List<Item>> itemMap = new HashMap<>();
-    private long itemGenerationId = 0;
     private final UserRepository repository;
+    private long itemGenerationId = 0;
+
 
     @Override
     public List<Item> getAllItems(Long userId) {
@@ -62,7 +63,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item updateItem(Long userId, Item item, Long itemId) {
-        patchValidated(item, itemId);
+        validationDataForUpdateItem(item, itemId);
         if (!itemMap.containsKey(userId)) {
             log.error("Item ID not found");
             throw new ItemNotFoundException("Item ID not found");
@@ -95,7 +96,7 @@ public class ItemRepositoryImpl implements ItemRepository {
                 && item.getAvailable().equals(true);
     }
 
-    private void patchValidated(Item item, Long itemId) {
+    private void validationDataForUpdateItem(Item item, Long itemId) {
         if (item.getName() == null) {
             item.setName(getItemById(itemId).getName());
         }

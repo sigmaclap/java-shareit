@@ -20,9 +20,10 @@ import java.util.stream.Collectors;
 public class ItemController {
     private final ItemService service;
     private final ItemMapper mapper;
+    private static final String REQUEST_HEADER_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getAllItems(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
         return service.getAllItems(userId)
                 .stream()
                 .map(mapper::toItemDto)
@@ -36,7 +37,7 @@ public class ItemController {
 
     @PostMapping
     @Validated(Marker.OnCreate.class)
-    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto createItem(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                               @Valid @RequestBody ItemDto itemDto) {
         Item item = mapper.toItem(itemDto);
         return mapper.toItemDto(service.createItem(userId, item));
@@ -44,7 +45,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     @Validated(Marker.OnUpdate.class)
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto updateItem(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                               @Valid @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId) {
         Item item = mapper.toItem(itemDto);
         return mapper.toItemDto(service.updateItem(userId, item, itemId));
