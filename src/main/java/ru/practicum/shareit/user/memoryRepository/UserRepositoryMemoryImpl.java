@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.memoryRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,13 +6,14 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.InvalidDataException;
 import ru.practicum.shareit.exceptions.UserAlreadyExistException;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
+import ru.practicum.shareit.user.entity.User;
 
 import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryMemoryImpl implements UserRepositoryMemory {
     private static final String ERROR_EMAIL_ALREADY_EXIST = "User email already exists";
 
     private final Map<Long, User> userMap = new HashMap<>();
