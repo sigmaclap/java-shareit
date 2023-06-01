@@ -50,16 +50,6 @@ public class ItemServiceImpl implements ItemService {
         return listItemDtoWithBooking;
     }
 
-    private List<CommentDto> getCommentListByUser(Long userId) {
-        List<CommentDto> commentList = commentRepository.findCommentsByUser_Id(userId).stream()
-                .map(commentMapper::toCommentDto)
-                .collect(Collectors.toList());
-        if (commentList.isEmpty()) {
-            commentList = Collections.emptyList();
-        }
-        return commentList;
-    }
-
     @Override
     public ItemDtoWithBooking getItemById(Long itemId, Long userId) {
         Item item = repository.findById(itemId)
@@ -71,40 +61,6 @@ public class ItemServiceImpl implements ItemService {
             return itemMapper.toItemDtoBooking(item, getCommentListByItem(itemId));
         }
     }
-
-    private List<CommentDto> getCommentListByItem(Long itemId) {
-        List<CommentDto> commentList = commentRepository.findCommentsByItem_Id(itemId).stream()
-                .map(commentMapper::toCommentDto)
-                .collect(Collectors.toList());
-        if (commentList.isEmpty()) {
-            commentList = Collections.emptyList();
-        }
-        return commentList;
-    }
-
-    private ItemDtoWithBooking getItemDtoWithBooking(List<CommentDto> commentList, Item item) {
-        ItemDtoWithBooking itemDtoWithBooking = itemMapper.toItemDtoBooking(item, commentList);
-        Optional<Booking> lastB = bookingRepository
-                .findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(item.getId(), LocalDateTime.now());
-        Optional<Booking> nextB = bookingRepository
-                .findFirstByItem_IdAndStartDateAfterOrderByEndDateAsc(item.getId(), LocalDateTime.now());
-        if (lastB.isEmpty()) {
-            itemDtoWithBooking.setLastBooking(null);
-            itemDtoWithBooking.setNextBooking(null);
-        } else if (nextB.isEmpty()) {
-            itemDtoWithBooking.setLastBooking(bookingMapper.toBookingOwnerDto(lastB.get()));
-        } else {
-            itemDtoWithBooking.setLastBooking(bookingMapper.toBookingOwnerDto(lastB.get()));
-            itemDtoWithBooking.setNextBooking(bookingMapper.toBookingOwnerDto(nextB.get()));
-        }
-        return itemDtoWithBooking;
-    }
-
-
-    private Item getItemById(Long itemId) {
-        return repository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found with"));
-    }
-
 
     @Override
     public Item createItem(Long userId, Item item) {
@@ -177,5 +133,48 @@ public class ItemServiceImpl implements ItemService {
     private boolean isCheckOwnerItem(Long userId, Long itemId) {
         return getItemById(itemId).getOwner().equals(userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found")));
+    }
+
+    private ItemDtoWithBooking getItemDtoWithBooking(List<CommentDto> commentList, Item item) {
+        ItemDtoWithBooking itemDtoWithBooking = itemMapper.toItemDtoBooking(item, commentList);
+        Optional<Booking> lastB = bookingRepository
+                .findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(item.getId(), LocalDateTime.now());
+        Optional<Booking> nextB = bookingRepository
+                .findFirstByItem_IdAndStartDateAfterOrderByEndDateAsc(item.getId(), LocalDateTime.now());
+        if (lastB.isEmpty()) {
+            itemDtoWithBooking.setLastBooking(null);
+            itemDtoWithBooking.setNextBooking(null);
+        } else if (nextB.isEmpty()) {
+            itemDtoWithBooking.setLastBooking(bookingMapper.toBookingOwnerDto(lastB.get()));
+        } else {
+            itemDtoWithBooking.setLastBooking(bookingMapper.toBookingOwnerDto(lastB.get()));
+            itemDtoWithBooking.setNextBooking(bookingMapper.toBookingOwnerDto(nextB.get()));
+        }
+        return itemDtoWithBooking;
+    }
+
+
+    private Item getItemById(Long itemId) {
+        return repository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found with"));
+    }
+
+    private List<CommentDto> getCommentListByItem(Long itemId) {
+        List<CommentDto> commentList = commentRepository.findCommentsByItem_Id(itemId).stream()
+                .map(commentMapper::toCommentDto)
+                .collect(Collectors.toList());
+        if (commentList.isEmpty()) {
+            commentList = Collections.emptyList();
+        }
+        return commentList;
+    }
+
+    private List<CommentDto> getCommentListByUser(Long userId) {
+        List<CommentDto> commentList = commentRepository.findCommentsByUser_Id(userId).stream()
+                .map(commentMapper::toCommentDto)
+                .collect(Collectors.toList());
+        if (commentList.isEmpty()) {
+            commentList = Collections.emptyList();
+        }
+        return commentList;
     }
 }

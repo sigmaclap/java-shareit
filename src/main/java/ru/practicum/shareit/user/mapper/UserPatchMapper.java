@@ -19,16 +19,15 @@ public class UserPatchMapper {
     public User toUser(UserPatchDto userPatchDto, Long userId) {
         userPatchDto.setId(userId);
         Optional<User> userOptional = repository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (userPatchDto.getName() == null) {
-                userPatchDto.setName(user.getName());
-            }
-            if (userPatchDto.getEmail() == null) {
-                userPatchDto.setEmail(user.getEmail());
-            }
-        } else {
+        if (userOptional.isEmpty()) {
             throw new UserNotFoundException("User not exists");
+        }
+        User user = userOptional.get();
+        if (userPatchDto.getName() == null) {
+            userPatchDto.setName(user.getName());
+        }
+        if (userPatchDto.getEmail() == null) {
+            userPatchDto.setEmail(user.getEmail());
         }
         return User.builder()
                 .id(userPatchDto.getId())

@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -77,10 +78,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking getBookingDetails(Long bookingId, Long userId) {
-        if (isNotExistsUser(userId)) {
-            log.error(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
-            throw new UserNotFoundException(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
-        }
+        validateExistsUser(userId);
         Booking booking = repository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException(ERROR_MESSAGE_BOOKING_404));
         User userOwner = booking.getItem().getOwner();
@@ -94,25 +92,15 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private boolean isNotExistsUser(Long userId) {
-        return userRepository.findById(userId).isEmpty();
-    }
-
     @Override
     public List<Booking> getAllBookingsByAuthor(StatusState state, Long userId) {
-        if (isNotExistsUser(userId)) {
-            log.error(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
-            throw new UserNotFoundException(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
-        }
+        validateExistsUser(userId);
         return getAllBookingsWithStateParameter(state, repository.findAllByBooker_IdOrderByStartDateDesc(userId));
     }
 
     @Override
     public List<Booking> getAllBookingByOwner(StatusState state, Long userId) {
-        if (isNotExistsUser(userId)) {
-            log.error(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
-            throw new UserNotFoundException(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
-        }
+        validateExistsUser(userId);
         List<Booking> listBookingsByOwner = repository.findAllByItem_Owner_IdOrderByStartDateDesc(userId);
         if (listBookingsByOwner.isEmpty()) {
             log.error("This user has no item");
@@ -122,33 +110,38 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<Booking> getAllBookingsWithStateParameter(StatusState state, List<Booking> listBookingsByUser) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
         switch (state) {
             case PAST:
-                return listBookingsByUser.stream()
-                        .filter(time -> time.getEndDate().isBefore(LocalDateTime.now()))
-                        .filter(status -> status.getStatus().equals(StatusBooking.APPROVED))
-                        .collect(Collectors.toList());
+                return getBookings(listBookingsByUser, booking -> booking.getEndDate().isBefore(currentDateTime) &&
+                        booking.getStatus().equals(StatusBooking.APPROVED));
             case FUTURE:
-                return listBookingsByUser.stream()
-                        .filter(time -> time.getStartDate().isAfter(LocalDateTime.now()))
-                        .collect(Collectors.toList());
+                return getBookings(listBookingsByUser,
+                        booking -> booking.getStartDate().isAfter(currentDateTime));
             case CURRENT:
-                return listBookingsByUser.stream()
-                        .filter(time -> time.getStartDate().isBefore(LocalDateTime.now()))
-                        .filter(time -> time.getEndDate().isAfter(LocalDateTime.now()))
-                        .filter(status -> status.getStatus().equals(StatusBooking.APPROVED)
-                                || status.getStatus().equals(StatusBooking.REJECTED))
-                        .collect(Collectors.toList());
+                return getBookings(listBookingsByUser,
+                        booking -> booking.getStartDate().isBefore(currentDateTime) &&
+                                booking.getEndDate().isAfter(currentDateTime) &&
+                                (booking.getStatus().equals(StatusBooking.APPROVED)
+                                        || booking.getStatus().equals(StatusBooking.REJECTED)));
             case WAITING:
-                return listBookingsByUser.stream()
-                        .filter(status -> status.getStatus().equals(StatusBooking.WAITING))
-                        .collect(Collectors.toList());
+                return getBookings(listBookingsByUser, booking -> booking.getStatus().equals(StatusBooking.WAITING));
             case REJECTED:
-                return listBookingsByUser.stream()
-                        .filter(status -> status.getStatus().equals(StatusBooking.REJECTED))
-                        .collect(Collectors.toList());
+                return getBookings(listBookingsByUser, booking -> booking.getStatus().equals(StatusBooking.REJECTED));
             default:
                 return listBookingsByUser;
+        }
+    }
+
+    private List<Booking> getBookings(List<Booking> listBookings,
+                                      Predicate<Booking> predicate){
+        return listBookings.stream().filter(predicate).collect(Collectors.toList());
+    }
+
+    private void validateExistsUser(Long userId) {
+        if (userRepository.findById(userId).isEmpty()) {
+            log.error(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
+            throw new UserNotFoundException(ERROR_MESSAGE_USER_WITH_ID_404 + userId);
         }
     }
 }
