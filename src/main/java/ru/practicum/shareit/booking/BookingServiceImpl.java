@@ -134,7 +134,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<Booking> getBookings(List<Booking> listBookings,
-                                      Predicate<Booking> predicate){
+                                      Predicate<Booking> predicate) {
         return listBookings.stream().filter(predicate).collect(Collectors.toList());
     }
 
