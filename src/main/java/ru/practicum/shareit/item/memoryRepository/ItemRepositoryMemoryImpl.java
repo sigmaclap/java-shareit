@@ -1,12 +1,12 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.memoryRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.item.entity.Item;
+import ru.practicum.shareit.user.memoryRepository.UserRepositoryMemory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class ItemRepositoryImpl implements ItemRepository {
+public class ItemRepositoryMemoryImpl implements ItemRepositoryMemory {
 
     private static final String ERROR_USER_NOT_FOUND = "User ID not found";
     private final Map<Long, List<Item>> itemMap = new HashMap<>();
-    private final UserRepository repository;
+    private final UserRepositoryMemory repository;
     private long itemGenerationId = 0;
 
 

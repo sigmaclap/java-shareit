@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorResponse {
-    private String errorMessage;
+    private String error;
+
 
     public static String customResponse(String errorMessage) {
         ObjectMapper objectMapper = new ObjectMapper();

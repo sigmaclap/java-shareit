@@ -1,11 +1,14 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.memoryRepository;
 
 import ru.practicum.shareit.user.entity.User;
 
 import java.util.List;
+import java.util.Map;
 
-public interface UserService {
+public interface UserRepositoryMemory {
     List<User> getUsers();
+
+    Map<Long, User> getUserMap();
 
     User createUser(User user);
 

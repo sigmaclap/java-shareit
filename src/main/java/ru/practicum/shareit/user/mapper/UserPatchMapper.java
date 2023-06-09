@@ -2,11 +2,13 @@ package ru.practicum.shareit.user.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserPatchDto;
+import ru.practicum.shareit.user.entity.User;
 
-import java.util.Map;
+import java.util.Optional;
+
 
 @Component
 @RequiredArgsConstructor
@@ -16,11 +18,16 @@ public class UserPatchMapper {
 
     public User toUser(UserPatchDto userPatchDto, Long userId) {
         userPatchDto.setId(userId);
-        Map<Long, User> userList = repository.getUserMap();
-        if (userList.containsKey(userPatchDto.getId()) && userPatchDto.getName() == null) {
-            userPatchDto.setName(userList.get(userPatchDto.getId()).getName());
-        } else if (userList.containsKey(userPatchDto.getId()) && userPatchDto.getEmail() == null) {
-            userPatchDto.setEmail(userList.get(userPatchDto.getId()).getEmail());
+        Optional<User> userOptional = repository.findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException("User not exists");
+        }
+        User user = userOptional.get();
+        if (userPatchDto.getName() == null) {
+            userPatchDto.setName(user.getName());
+        }
+        if (userPatchDto.getEmail() == null) {
+            userPatchDto.setEmail(user.getEmail());
         }
         return User.builder()
                 .id(userPatchDto.getId())

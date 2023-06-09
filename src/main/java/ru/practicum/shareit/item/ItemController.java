@@ -3,9 +3,14 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoRequest;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
+import ru.practicum.shareit.item.entity.Comment;
+import ru.practicum.shareit.item.entity.Item;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.validated.Marker;
 
 import javax.validation.Valid;
@@ -20,19 +25,18 @@ import java.util.stream.Collectors;
 public class ItemController {
     private final ItemService service;
     private final ItemMapper mapper;
+    private final CommentMapper commentMapper;
     private static final String REQUEST_HEADER_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
-        return service.getAllItems(userId)
-                .stream()
-                .map(mapper::toItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDtoWithBooking> getAllItems(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
+        return service.getAllItems(userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable("itemId") Long itemId) {
-        return mapper.toItemDto(service.getItemById(itemId));
+    public ItemDtoWithBooking getItemById(@PathVariable("itemId") Long itemId,
+                                          @RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
+        return service.getItemById(itemId, userId);
     }
 
     @PostMapping
@@ -56,5 +60,13 @@ public class ItemController {
         return service.searchItemForText(text).stream()
                 .map(mapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
+                                    @Valid @RequestBody CommentDtoRequest commentDtoRequest,
+                                    @PathVariable("itemId") Long itemId) {
+        Comment comment = commentMapper.toComment(commentDtoRequest);
+        return commentMapper.toCommentDto(service.createComment(userId, comment, itemId));
     }
 }
