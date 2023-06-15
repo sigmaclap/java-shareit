@@ -16,9 +16,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringBootTest(
-        properties = "db.name=test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class UserServiceImplIntegrationTest {
 
     private final UserService service;

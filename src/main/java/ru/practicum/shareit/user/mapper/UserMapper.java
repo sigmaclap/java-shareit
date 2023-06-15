@@ -1,11 +1,13 @@
 package ru.practicum.shareit.user.mapper;
 
+import lombok.Generated;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.dto.BookerDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.entity.User;
 
 @Component
+@Generated
 public class UserMapper {
     public UserDto toUserDto(User user) {
         return UserDto.builder()

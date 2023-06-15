@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.mapper;
 
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@Generated
 public class ItemMapper {
     private final UserService service;
     private final ItemRequestService requestService;

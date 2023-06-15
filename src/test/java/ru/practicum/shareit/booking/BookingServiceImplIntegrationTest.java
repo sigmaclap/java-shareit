@@ -25,9 +25,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringBootTest(
-        properties = "db.name=test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class BookingServiceImplIntegrationTest {
     private final BookingService service;
     private final EntityManager entityManager;

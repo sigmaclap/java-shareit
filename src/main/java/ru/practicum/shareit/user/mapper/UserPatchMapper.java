@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.mapper;
 
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Generated
 public class UserPatchMapper {
 
     private final UserRepository repository;
