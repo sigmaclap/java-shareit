@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 @SpringJUnitWebConfig(ItemRequestController.class)
-class ItemRequestControllerIT {
+class ItemRequestControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired

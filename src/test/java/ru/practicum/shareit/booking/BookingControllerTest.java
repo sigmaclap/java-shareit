@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 @SpringJUnitWebConfig(BookingController.class)
-class BookingControllerIT {
+class BookingControllerTest {
     private static final String REQUEST_HEADER_SHARER_USER_ID = "X-Sharer-User-Id";
     @Autowired
     private MockMvc mockMvc;
