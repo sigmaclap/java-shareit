@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,7 +15,24 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByBooker_IdOrderByStartDateDesc(Long userId);
 
+    Page<Booking> findAllByBooker_IdOrderByStartDateDesc(Long userId, Pageable pageable);
+
+    @Query(value = "SELECT * FROM bookings b \n" +
+            "WHERE b.booker_id = ?1\n" +
+            "ORDER BY b.start_date DESC \n" +
+            "OFFSET ?2 ROWS", nativeQuery = true)
+    Page<Booking> findAllByBooker_IdOrderByStartDateDesc(Long userId, Integer limit, Pageable pageable);
+
     List<Booking> findAllByItem_Owner_IdOrderByStartDateDesc(Long userId);
+
+    Page<Booking> findAllByItem_Owner_IdOrderByStartDateDesc(Long userId, Pageable pageable);
+
+    @Query(value = "SELECT * FROM bookings b \n" +
+            "JOIN items i ON i.id = b.item_id \n" +
+            "WHERE i.owner_id = ?1\n" +
+            "ORDER BY b.start_date DESC \n" +
+            "OFFSET ?2 ROWS", nativeQuery = true)
+    Page<Booking> findAllByItem_Owner_IdOrderByStartDateDesc(Long userId, Integer page, Pageable pageable);
 
     @Query(value = "SELECT * FROM bookings b \n" +
             "WHERE b.booker_id = ?1\n" +

@@ -1,14 +1,16 @@
 package ru.practicum.shareit.request.entity;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
+import ru.practicum.shareit.item.entity.Item;
 import ru.practicum.shareit.user.entity.User;
 
 import javax.persistence.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "requests")
@@ -23,8 +25,10 @@ public class ItemRequest {
     @Column(nullable = false)
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requestor_id", nullable = false)
-    private User requestor;
-    @CreatedDate
-    private final Instant created = Instant.now();
+    @JoinColumn(name = "requester_id", nullable = false)
+    private User requester;
+    @Column(name = "created_date")
+    private final LocalDateTime created = LocalDateTime.now();
+    @Transient
+    private List<Item> items;
 }
