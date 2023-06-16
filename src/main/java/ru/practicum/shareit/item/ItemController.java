@@ -39,7 +39,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoWithBooking getItemById(@PathVariable("itemId") Long itemId,
+    public ItemDtoWithBooking getItemById(@PathVariable Long itemId,
                                           @RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
         return service.getItemById(itemId, userId);
     }
@@ -55,14 +55,14 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @Validated(Marker.OnUpdate.class)
     public ItemDto updateItem(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
-                              @Valid @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId) {
+                              @Valid @RequestBody ItemDto itemDto, @PathVariable Long itemId) {
         Item item = mapper.toItem(itemDto, userId);
         return mapper.toItemDto(service.updateItem(userId, item, itemId));
     }
 
     @GetMapping("/search")
     public List<ItemDto>
-    searchItemForText(@RequestParam("text") String text,
+    searchItemForText(@RequestParam String text,
                       @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) Integer limit,
                       @RequestParam(required = false, defaultValue = "20") @Min(1) @Max(50) Integer size) {
         return service.searchItemForText(text, limit, size).stream()
@@ -73,7 +73,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                                     @Valid @RequestBody CommentDtoRequest commentDtoRequest,
-                                    @PathVariable("itemId") Long itemId) {
+                                    @PathVariable Long itemId) {
         Comment comment = commentMapper.toComment(commentDtoRequest);
         return commentMapper.toCommentDto(service.createComment(userId, comment, itemId));
     }

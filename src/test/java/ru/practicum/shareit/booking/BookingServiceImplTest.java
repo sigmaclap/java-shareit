@@ -47,13 +47,15 @@ class BookingServiceImplTest {
     @Captor
     private ArgumentCaptor<Booking> bookingArgumentCaptor;
 
-    Item item;
-    User userOwner;
-    User userBooker;
+    private Item item;
+    private User userOwner;
+    private User userBooker;
+    private Long userId;
 
 
     @BeforeEach
     void addDataToBase() {
+        userId = 1L;
         userOwner = User.builder()
                 .id(10L)
                 .name("name")
@@ -76,7 +78,6 @@ class BookingServiceImplTest {
 
     @Test
     void createBookingRequest_whenItemFound_thenReturnedBooking() {
-        Long userId = 1L;
         Booking bookingToSave = Booking.builder()
                 .id(1L)
                 .item(item)
@@ -92,7 +93,6 @@ class BookingServiceImplTest {
 
     @Test
     void createBookingRequest_whenItemNotFound_thenReturnedThrown() {
-        long userId = 1L;
         Booking bookingToSave = Booking.builder()
                 .id(1L)
                 .item(item)
@@ -108,7 +108,6 @@ class BookingServiceImplTest {
 
     @Test
     void createBookingRequest_whenAvailableFalse_thenThrown() {
-        Long userId = 1L;
         item.setAvailable(false);
         Booking bookingToSave = Booking.builder()
                 .id(1L)
@@ -125,7 +124,7 @@ class BookingServiceImplTest {
 
     @Test
     void createBookingRequest_whenOwnerEqualsRequesterUser_thenThrown() {
-        Long userId = 10L;
+        userId = 10L;
         Booking bookingToSave = Booking.builder()
                 .id(1L)
                 .item(item)
@@ -141,7 +140,7 @@ class BookingServiceImplTest {
 
     @Test
     void updateBookingStatusByOwner_whenApprovedStatusTrue_thenUpdateBooking() {
-        Long userId = 10L;
+        userId = 10L;
         boolean approvedStatus = true;
         Booking booking = Booking.builder()
                 .id(1L)
@@ -162,7 +161,7 @@ class BookingServiceImplTest {
 
     @Test
     void updateBookingStatusByOwner_whenApprovedStatusFalse_thenUpdateBooking() {
-        Long userId = 10L;
+        userId = 10L;
         boolean approvedStatus = false;
         Booking booking = Booking.builder()
                 .id(1L)
@@ -183,7 +182,7 @@ class BookingServiceImplTest {
 
     @Test
     void updateBookingStatusByOwner_whenStatusAlreadyApproved_thenThrown() {
-        Long userId = 10L;
+        userId = 10L;
         boolean approvedStatus = true;
         Booking booking = Booking.builder()
                 .id(1L)
@@ -201,7 +200,7 @@ class BookingServiceImplTest {
 
     @Test
     void updateBookingStatusByOwner_whenStatusAlreadyRejected_thenThrown() {
-        Long userId = 10L;
+        userId = 10L;
         boolean approvedStatus = false;
         Booking booking = Booking.builder()
                 .id(1L)
@@ -219,7 +218,6 @@ class BookingServiceImplTest {
 
     @Test
     void updateBookingStatusByOwner_whenNotOwnerTryingUpdateStatus_thenThrown() {
-        Long userId = 1L;
         boolean approvedStatus = true;
         Booking booking = Booking.builder()
                 .id(1L)
@@ -237,7 +235,6 @@ class BookingServiceImplTest {
 
     @Test
     void updateBookingStatusByOwner_whenOldBookingNotFound_thenThrown() {
-        Long userId = 1L;
         boolean approvedStatus = true;
         Booking booking = Booking.builder()
                 .id(1L)
@@ -255,7 +252,6 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingDetails_whenAuthorCheckDetail_thenGetDetailsBooking() {
-        Long userId = 1L;
         User user = User.builder()
                 .id(userId)
                 .name("name")
@@ -278,7 +274,7 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingDetails_whenOwnerCheckDetail_thenGetDetailsBooking() {
-        Long userId = 10L;
+        userId = 10L;
         User user = User.builder()
                 .id(userId)
                 .name("name")
@@ -301,7 +297,7 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingDetails_whenUserNotExists_thenThrown() {
-        Long userId = 100L;
+        userId = 100L;
         Booking booking = Booking.builder()
                 .id(1L)
                 .item(item)
@@ -319,7 +315,7 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingDetails_whenUserNotAuthorOrOwner_thenThrown() {
-        Long userId = 2L;
+        userId = 2L;
         User user = User.builder()
                 .id(userId)
                 .name("name")
@@ -343,7 +339,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByAuthor_whenStatusStateAllExistUser_thenGetListBookingWithSort() {
-        Long userId = 10L;
+        userId = 10L;
         StatusState statusState = StatusState.ALL;
         User user = User.builder()
                 .id(userId)
@@ -370,7 +366,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByAuthor_whenStatusStatePastExistUser_thenGetListBookingWithSort() {
-        Long userId = 10L;
+        userId = 10L;
         StatusState statusState = StatusState.PAST;
         User user = User.builder()
                 .id(userId)
@@ -399,7 +395,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByAuthor_whenStatusStateFutureExistUser_thenGetListBookingWithSort() {
-        Long userId = 10L;
+        userId = 10L;
         StatusState statusState = StatusState.FUTURE;
         User user = User.builder()
                 .id(userId)
@@ -428,7 +424,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByAuthor_whenStatusStateCurrentExistUser_thenGetListBookingWithSort() {
-        Long userId = 10L;
+        userId = 10L;
         StatusState statusState = StatusState.CURRENT;
         User user = User.builder()
                 .id(userId)
@@ -468,7 +464,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByAuthor_whenStatusStateWaitingExistUser_thenGetListBookingWithSort() {
-        Long userId = 10L;
+        userId = 10L;
         StatusState statusState = StatusState.WAITING;
         User user = User.builder()
                 .id(userId)
@@ -498,7 +494,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByAuthor_whenStatusStateRejectedExistUser_thenGetListBookingWithSort() {
-        Long userId = 10L;
+        userId = 10L;
         StatusState statusState = StatusState.REJECTED;
         User user = User.builder()
                 .id(userId)
@@ -529,7 +525,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByAuthor_whenNotExistUser_thenThrown() {
-        Long userId = 2L;
+        userId = 2L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         Throwable exception = assertThrows(UserNotFoundException.class,
@@ -541,7 +537,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwner_whenNotExistUser_thenThrown() {
-        long userId = 2L;
+        userId = 2L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         Throwable exception = assertThrows(UserNotFoundException.class,
@@ -553,7 +549,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwner_whenOwnerHasNoItem_thenThrown() {
-        long userId = 2L;
+        userId = 2L;
         List<Booking> expectedListBooking = Collections.emptyList();
         Page<Booking> page = new PageImpl<>(expectedListBooking);
         when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
@@ -568,7 +564,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwner_whenOwnerHasItem_thenReturnCorrectDataValueList() {
-        Long userId = 10L;
+        userId = 10L;
         StatusState statusState = StatusState.ALL;
         User user = User.builder()
                 .id(userId)

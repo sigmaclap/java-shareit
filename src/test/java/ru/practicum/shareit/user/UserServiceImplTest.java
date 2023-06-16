@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,14 @@ class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl userServiceImpl;
+    private long userId;
+    private User expectedUser;
+
+    @BeforeEach
+    void setUp() {
+        userId = 0L;
+        expectedUser = new User();
+    }
 
     @Test
     void getUsers_whenCorrectData_thenReturnedListUsers() {
@@ -36,7 +45,6 @@ class UserServiceImplTest {
 
     @Test
     void createUser_whenUserValid_thenSavedUser() {
-        User expectedUser = new User();
         when(repository.save(expectedUser)).thenReturn(expectedUser);
 
         User actualUser = userServiceImpl.createUser(expectedUser);
@@ -47,8 +55,6 @@ class UserServiceImplTest {
 
     @Test
     void updateUser_whenUserFound_thenReturnedUser() {
-        long userId = 0L;
-        User expectedUser = new User();
         when(repository.save(expectedUser)).thenReturn(expectedUser);
 
         User actualUser = userServiceImpl.updateUser(expectedUser, userId);
@@ -59,8 +65,6 @@ class UserServiceImplTest {
 
     @Test
     void findUserById_whenUserFound_thenReturnedUser() {
-        long userId = 0L;
-        User expectedUser = new User();
         when(repository.findById(userId)).thenReturn(Optional.of(expectedUser));
 
         User actualUser = userServiceImpl.findUserById(userId);
@@ -70,7 +74,6 @@ class UserServiceImplTest {
 
     @Test
     void findUserById_whenUserNotFound_thenReturnedUser() {
-        long userId = 0L;
         when(repository.findById(userId)).thenReturn(Optional.empty());
 
         Throwable exception = assertThrows(UserNotFoundException.class,
@@ -81,8 +84,6 @@ class UserServiceImplTest {
 
     @Test
     void deleteUserById_whenUserFound_thenDeletedUser() {
-        long userId = 0L;
-        User expectedUser = new User();
         when(repository.findById(userId)).thenReturn(Optional.of(expectedUser));
 
         userServiceImpl.deleteUserById(userId);

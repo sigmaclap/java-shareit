@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,9 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.context.WebApplicationContext;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserPatchDto;
 import ru.practicum.shareit.user.entity.User;
@@ -43,17 +42,30 @@ class UserControllerTest {
     private UserMapper userMapper;
     @MockBean
     private UserPatchMapper patchMapper;
+    private long userId;
+    private UserDto userDto;
+    private UserPatchDto userToCreate;
+    private User userToSave;
 
     @BeforeEach
-    void setUp(WebApplicationContext wac) {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
+    void setUp() {
+        userId = 1L;
+        userDto = UserDto.builder()
+                .id(1L)
+                .name("John")
+                .email("john@gmail.com")
                 .build();
+        userToCreate = UserPatchDto.builder()
+                .id(1L)
+                .name("John")
+                .email("john@gmail.com")
+                .build();
+        userToSave = new User();
     }
 
     @SneakyThrows
     @Test
-    void getUsers() {
+    void getUsers_whenValidDataOk_thenReturnedGetUsers() {
         List<User> users = List.of(
                 User.builder()
                         .id(1L)
@@ -61,11 +73,6 @@ class UserControllerTest {
                         .email("john@gmail.com")
                         .build()
         );
-        UserDto userDto = UserDto.builder()
-                .id(1L)
-                .name("John")
-                .email("john@gmail.com")
-                .build();
         when(service.getUsers()).thenReturn(users);
         when(userMapper.toUserDto(users.get(0))).thenReturn(userDto);
         List<UserDto> expectedUsers = users.stream()
@@ -78,24 +85,18 @@ class UserControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(expectedUsers), result);
+        checkEqualsResult(expectedUsers, result);
     }
 
     @SneakyThrows
     @Test
-    void createUser_whenUserValid_thenReturnedCreateUser() {
-        UserDto userToCreate = UserDto.builder()
-                .id(1L)
-                .name("John")
-                .email("john@gmail.com")
-                .build();
-        User userToSave = new User();
-        when(userMapper.toUser(userToCreate)).thenReturn(userToSave);
+    void createUser_whenUserValid_thenReturnedCreateUserStatusCode200() {
+        when(userMapper.toUser(userDto)).thenReturn(userToSave);
         when(service.createUser(userToSave)).thenReturn(userToSave);
-        when(userMapper.toUserDto(userToSave)).thenReturn(userToCreate);
+        when(userMapper.toUserDto(userToSave)).thenReturn(userDto);
 
         String result = mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(userToCreate))
+                        .content(objectMapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -104,13 +105,12 @@ class UserControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-
-        assertEquals(objectMapper.writeValueAsString(userToCreate), result);
+        checkEqualsResult(userDto, result);
     }
 
     @SneakyThrows
     @Test
-    void createUser_whenUserIsNotValid_thenReturnedBadRequest() {
+    void createUser_whenUserIsNotValid_thenReturnedBadRequestStatusCode400() {
         User userToCreate = new User();
         when(service.createUser(userToCreate)).thenReturn(userToCreate);
 
@@ -124,116 +124,52 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void updateUser_whenValidData_thenUpdateUser() {
-        long userId = 1L;
-        UserPatchDto userToCreate = UserPatchDto.builder()
-                .id(1L)
-                .name("John")
-                .email("john@gmail.com")
-                .build();
-        User userToSave = new User();
-        UserDto userDto = UserDto.builder()
-                .id(1L)
-                .name("John")
-                .email("john@gmail.com")
-                .build();
+    void updateUser_whenValidData_thenUpdateUserStatusCode200() {
         when(patchMapper.toUser(userToCreate, userId)).thenReturn(userToSave);
         when(service.updateUser(userToSave, userId)).thenReturn(userToSave);
         when(userMapper.toUserDto(userToSave)).thenReturn(userDto);
 
-        String result = mockMvc.perform(patch("/users/{id}", userId)
-                        .content(objectMapper.writeValueAsString(userToCreate))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String result = performPatch(userToCreate);
 
-        assertEquals(objectMapper.writeValueAsString(userToCreate), result);
+        checkEqualsResult(userToCreate, result);
         verify(service).updateUser(userToSave, userId);
     }
 
     @SneakyThrows
     @Test
-    void updateUser_whenEmptyNameUser_thenUpdateUser() {
-        long userId = 1L;
-        UserPatchDto userToCreate = UserPatchDto.builder()
-                .id(1L)
-                .email("ivan@gmail.com")
-                .build();
-        User userToSave = new User();
-        UserDto userDto = UserDto.builder()
-                .id(1L)
-                .name("John")
-                .email("john@gmail.com")
-                .build();
+    void updateUser_whenEmptyNameUser_thenUpdateUserStatusCode200() {
         when(patchMapper.toUser(userToCreate, userId)).thenReturn(userToSave);
         when(service.updateUser(userToSave, userId)).thenReturn(userToSave);
         when(userMapper.toUserDto(userToSave)).thenReturn(userDto);
 
-        String result = mockMvc.perform(patch("/users/{id}", userId)
-                        .content(objectMapper.writeValueAsString(userToCreate))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String result = performPatch(userToCreate);
 
-        assertEquals(objectMapper.writeValueAsString(userDto), result);
+        checkEqualsResult(userDto, result);
         verify(service).updateUser(userToSave, userId);
     }
 
     @SneakyThrows
     @Test
-    void updateUser_whenEmptyEmailUser_thenUpdateUser() {
-        long userId = 1L;
-        UserPatchDto userToCreate = UserPatchDto.builder()
-                .id(1L)
-                .name("name")
-                .build();
-        User userToSave = new User();
-        UserDto userDto = UserDto.builder()
-                .id(1L)
-                .name("John")
-                .email("john@gmail.com")
-                .build();
+    void updateUser_whenEmptyEmailUser_thenUpdateUserStatusCode200() {
         when(patchMapper.toUser(userToCreate, userId)).thenReturn(userToSave);
         when(service.updateUser(userToSave, userId)).thenReturn(userToSave);
         when(userMapper.toUserDto(userToSave)).thenReturn(userDto);
 
-        String result = mockMvc.perform(patch("/users/{id}", userId)
-                        .content(objectMapper.writeValueAsString(userToCreate))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String result = performPatch(userToCreate);
 
-        assertEquals(objectMapper.writeValueAsString(userDto), result);
+        checkEqualsResult(userDto, result);
         verify(service).updateUser(userToSave, userId);
     }
 
     @SneakyThrows
     @Test
-    void updateUser_whenNotValidEmailUser_thenUpdateUser() {
-        long userId = 1L;
+    void updateUser_whenNotValidEmailUser_thenUpdateUserStatusCode400() {
         UserPatchDto userToCreate = UserPatchDto.builder()
                 .id(1L)
                 .name("name")
                 .email("email")
                 .build();
         User userToSave = new User();
-        UserDto userDto = UserDto.builder()
-                .id(1L)
-                .name("John")
-                .email("john@gmail.com")
-                .build();
         when(patchMapper.toUser(userToCreate, userId)).thenReturn(userToSave);
         when(service.updateUser(userToSave, userId)).thenReturn(userToSave);
         when(userMapper.toUserDto(userToSave)).thenReturn(userDto);
@@ -255,9 +191,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void findUserById() {
-        long userId = 0L;
-
+    void findUserById_whenValidDataOk_thenReturnedFindUserStatusCode200() {
         mockMvc.perform(get("/users/{id}", userId))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -266,12 +200,26 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void deleteUserById() {
-        long userId = 0L;
-
+    void deleteUserById_whenGetValidUser_thenReturnedSuccessStatusCode200() {
         mockMvc.perform(delete("/users/{id}", userId))
                 .andDo(print())
                 .andExpect(status().isOk());
         verify(service).deleteUserById(userId);
+    }
+
+    private String performPatch(Object expected) throws Exception {
+        return mockMvc.perform(patch("/users/{id}", userId)
+                        .content(objectMapper.writeValueAsString(expected))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
+
+    private void checkEqualsResult(Object expected, String result) throws JsonProcessingException {
+        assertEquals(objectMapper.writeValueAsString(expected), result);
     }
 }

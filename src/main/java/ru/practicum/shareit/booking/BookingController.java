@@ -34,14 +34,14 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDtoResponse updateBookingStatusByOwner(@PathVariable("bookingId") Long bookingId,
+    public BookingDtoResponse updateBookingStatusByOwner(@PathVariable Long bookingId,
                                                          @RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                                                          @RequestParam boolean approved) {
         return mapper.toUpdateBookingDtoResponse(service.updateBookingStatusByOwner(bookingId, userId, approved));
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDtoResponse getBookingDetails(@PathVariable("bookingId") Long bookingId,
+    public BookingDtoResponse getBookingDetails(@PathVariable Long bookingId,
                                                 @RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
         return mapper.toBookingDtoResponse(service.getBookingDetails(bookingId, userId));
     }

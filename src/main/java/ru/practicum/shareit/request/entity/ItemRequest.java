@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.item.entity.Item;
 import ru.practicum.shareit.user.entity.User;
 
@@ -27,8 +28,9 @@ public class ItemRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
-    @Column(name = "created_date")
-    private final LocalDateTime created = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(name = "created_date", updatable = false)
+    private LocalDateTime created;
     @Transient
     private List<Item> items;
 }

@@ -24,7 +24,7 @@ class UserServiceImplIntegrationTest {
     private final UserRepository userRepository;
 
     @Test
-    void findUserById() {
+    void findUserById_whenValidDataOK_thenReturnedFindUserById() {
         User user = User.builder()
                 .name("name")
                 .email("email@gmail.com")

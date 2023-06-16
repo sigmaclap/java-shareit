@@ -67,7 +67,7 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void createBookingRequest() {
+    void createBookingRequest_whenValidData_thenReturnedCreate() {
         Booking booking = Booking.builder()
                 .startDate(LocalDateTime.now().plusMinutes(1))
                 .endDate(LocalDateTime.now().plusDays(1))

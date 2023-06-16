@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentDtoRequest;
@@ -50,14 +49,12 @@ class ItemControllerTest {
     private Long itemId;
     private Item item;
     private Long userId;
-
+    private ItemDto nullableItemDto;
     private ItemDtoWithBooking itemDtoWithBooking;
+    private List<ItemDtoWithBooking> expectedList;
 
     @BeforeEach
-    void setUp(WebApplicationContext wac) {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
-                .build();
+    void setUp() {
         itemId = 1L;
         userId = 1L;
         itemDto = ItemDto.builder()
@@ -69,12 +66,13 @@ class ItemControllerTest {
                 .build();
         itemDtoWithBooking = ItemDtoWithBooking.builder()
                 .build();
+        expectedList = List.of(itemDtoWithBooking);
+        nullableItemDto = new ItemDto();
     }
 
     @SneakyThrows
     @Test
-    void getAllItems_whenValidParam_thenReturnedListDtoItems() {
-        List<ItemDtoWithBooking> expectedList = List.of(itemDtoWithBooking);
+    void getAllItems_whenValidParam_thenReturnedListDtoItemsStatusCode200() {
         when(service.getAllItems(userId, 0, 20)).thenReturn(expectedList);
 
         String result = mockMvc.perform(get("/items")
@@ -86,14 +84,13 @@ class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(expectedList), result);
+        checkEqualsResult(expectedList, result);
         verify(service).getAllItems(userId, 0, 20);
     }
 
     @SneakyThrows
     @Test
-    void getAllItems_whenNotValidParam_thenReturnedThrows() {
-        List<ItemDtoWithBooking> expectedList = List.of(itemDtoWithBooking);
+    void getAllItems_whenNotValidParam_thenReturnedThrowsError() {
         when(service.getAllItems(userId, 0, 20)).thenReturn(expectedList);
 
         assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/items")
@@ -105,7 +102,7 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void getItemById_whenValidData_thenReturnedItem() {
+    void getItemById_whenValidData_thenReturnedItemStatusCode200() {
         when(service.getItemById(itemId, userId)).thenReturn(itemDtoWithBooking);
 
         String result = mockMvc.perform(get("/items/{itemId}", itemId)
@@ -115,13 +112,13 @@ class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(itemDtoWithBooking), result);
+        checkEqualsResult(itemDtoWithBooking, result);
         verify(service).getItemById(itemId, userId);
     }
 
     @SneakyThrows
     @Test
-    void createItem() {
+    void createItem_whenValidData_thenReturnedCreateItemStatusCode200() {
         when(mapper.toItem(itemDto, userId)).thenReturn(item);
         when(service.createItem(userId, item)).thenReturn(item);
         when(mapper.toItemDto(item)).thenReturn(itemDto);
@@ -137,15 +134,13 @@ class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(itemDto), result);
+        checkEqualsResult(itemDto, result);
         verify(service).createItem(userId, item);
     }
 
     @SneakyThrows
     @Test
-    void createItem_whenInvalidDataItem_thenReturnedThrows() {
-        ItemDto nullableItemDto = new ItemDto();
-
+    void createItem_whenInvalidDataItem_thenReturnedThrowsError() {
         assertThrows(NestedServletException.class, () -> mockMvc.perform(post("/items")
                 .content(objectMapper.writeValueAsString(nullableItemDto))
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -158,54 +153,34 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void updateItem() {
+    void updateItem_whenValidDataOk_thenReturnedUpdateStatusCode200() {
         when(mapper.toItem(itemDto, userId)).thenReturn(item);
         when(service.updateItem(userId, item, itemId)).thenReturn(item);
         when(mapper.toItemDto(item)).thenReturn(itemDto);
 
-        String result = mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .content(objectMapper.writeValueAsString(itemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(REQUEST_HEADER_SHARER_USER_ID, userId))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String result = performPatchM(itemDto);
 
-        assertEquals(objectMapper.writeValueAsString(itemDto), result);
+        checkEqualsResult(itemDto, result);
         verify(service).updateItem(userId, item, itemId);
     }
 
     @SneakyThrows
     @Test
-    void updateItem_whenDataNullInItemDto_thenReturnedUpdatedItem() {
-        ItemDto nullableItemDto = new ItemDto();
-
+    void updateItem_whenDataNullInItemDto_thenReturnedUpdatedItemStatusCode200() {
         when(mapper.toItem(nullableItemDto, userId)).thenReturn(item);
         when(service.updateItem(userId, item, itemId)).thenReturn(item);
         when(mapper.toItemDto(item)).thenReturn(nullableItemDto);
 
 
-        String result = mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .content(objectMapper.writeValueAsString(nullableItemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(REQUEST_HEADER_SHARER_USER_ID, userId))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String result = performPatchM(nullableItemDto);
 
-        assertEquals(objectMapper.writeValueAsString(nullableItemDto), result);
+        checkEqualsResult(nullableItemDto, result);
         verify(service).updateItem(userId, item, itemId);
     }
 
     @SneakyThrows
     @Test
-    void searchItemForText() {
+    void searchItemForText_whenValidDataOk_thenReturnedSearchTextStatusCode200() {
         List<Item> items = List.of(item);
         itemDto.setName("First name");
         List<ItemDto> expectedList = List.of(itemDto);
@@ -225,13 +200,13 @@ class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(expectedList), result);
+        checkEqualsResult(expectedList, result);
         verify(service).searchItemForText(text, 0, 20);
     }
 
     @SneakyThrows
     @Test
-    void createComment_whenValidData_thenCreateComment() {
+    void createComment_whenValidData_thenCreateCommentStatusCode200() {
         CommentDtoRequest requestDto = new CommentDtoRequest();
         requestDto.setText("Hello world!");
         Comment comment = new Comment();
@@ -251,7 +226,24 @@ class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(expectedComment), result);
+        checkEqualsResult(expectedComment, result);
         verify(service).createComment(userId, comment, itemId);
+    }
+
+    private String performPatchM(Object expected) throws Exception {
+        return mockMvc.perform(patch("/items/{itemId}", itemId)
+                        .content(objectMapper.writeValueAsString(expected))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(REQUEST_HEADER_SHARER_USER_ID, userId))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
+
+    private void checkEqualsResult(Object expected, String result) throws JsonProcessingException {
+        assertEquals(objectMapper.writeValueAsString(expected), result);
     }
 }

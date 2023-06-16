@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,10 +36,21 @@ class ItemRequestServiceImplTest {
 
     @InjectMocks
     private ItemRequestServiceImpl itemRequestService;
+    private long userId;
+    private long requestId;
+    private User expectedUser;
+    private ItemRequest expectedRequest;
+
+    @BeforeEach
+    void setUp() {
+        userId = 0L;
+        requestId = 0L;
+        expectedRequest = new ItemRequest();
+        expectedUser = new User();
+    }
 
     @Test
     void createItemRequest_whenValidData_thenReturnedItemRequest() {
-        ItemRequest expectedRequest = new ItemRequest();
         when(itemRequestRepository.save(expectedRequest)).thenReturn(expectedRequest);
 
         ItemRequest actualRequest = itemRequestService.createItemRequest(expectedRequest);
@@ -49,8 +61,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllItemRequestOwner_whenUserExist_thenReturnedExpectedList() {
-        long userId = 0L;
-        User expectedUser = new User();
         List<ItemRequest> expectedList = List.of(new ItemRequest());
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
         when(itemRequestRepository.findAllByRequester_IdOrderByCreatedDesc(userId))
@@ -64,7 +74,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllItemRequestOwner_whenUserNotExist_thenNotReturnedExpectedList() {
-        long userId = 0L;
         doThrow(UserNotFoundException.class).when(userRepository).findById(userId);
 
         assertThrows(UserNotFoundException.class, () -> itemRequestService.getAllItemRequestOwner(userId));
@@ -73,8 +82,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllItemRequestOwner_whenOwnerListEmpty_thenReturnedEmptyList() {
-        long userId = 0L;
-        User expectedUser = new User();
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
         when(itemRequestRepository.findAllByRequester_IdOrderByCreatedDesc(userId))
                 .thenReturn(Collections.emptyList());
@@ -87,9 +94,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findRequestItemById_whenUserExistAndRequestExist_thenReturnedExpectedRequest() {
-        long userId = 0L;
-        long requestId = 0L;
-        User expectedUser = new User();
         ItemRequest expectedRequest = new ItemRequest();
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
         when(itemRequestRepository.findById(requestId)).thenReturn(Optional.of(expectedRequest));
@@ -102,9 +106,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findRequestItemById_whenUserNotExist_thenReturnedThrown() {
-        long userId = 0L;
-        long requestId = 0L;
-        ItemRequest expectedRequest = new ItemRequest();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> itemRequestService.findRequestItemById(userId, requestId));
@@ -113,9 +114,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findRequestItemById_whenRequestNotExist_thenReturnedThrown() {
-        long userId = 0L;
-        long requestId = 0L;
-        ItemRequest expectedRequest = new ItemRequest();
         when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
         when(itemRequestRepository.findById(requestId)).thenReturn(Optional.empty());
 
@@ -126,11 +124,8 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findAllUsersRequests_whenUserExist_thenReturnedExpectedListRequests() {
-        long userId = 1L;
-        long requestId = 1L;
         ItemRequest request = new ItemRequest();
         request.setId(requestId);
-        User expectedUser = new User();
         List<ItemRequest> expectedRequests = List.of(request);
         List<Item> items = List.of(new Item());
         Page<ItemRequest> expectedResult = new PageImpl<>(expectedRequests);
@@ -149,8 +144,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findAllUsersRequests_whenUserNotExist_thenReturnedThrown() {
-        long userId = 0L;
-        ItemRequest expectedRequest = new ItemRequest();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> itemRequestService.findAllUsersRequests(userId, 0, 20));
@@ -159,9 +152,6 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findAllUsersRequests_whenItemRequestsIsEmpty_thenReturnedThrown() {
-        long userId = 0L;
-        User expectedUser = new User();
-        long requestId = 0L;
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
         when(itemRequestRepository.findAllByRequester_IdNotOrderByCreatedDesc(userId, PageRequest.of(0, 20)))
                 .thenReturn(Page.empty());

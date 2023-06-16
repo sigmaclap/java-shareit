@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -62,6 +63,22 @@ class ItemServiceImplTest {
 
     @InjectMocks
     ItemServiceImpl itemService;
+    private Item expectedItem;
+    private long userId;
+
+    @BeforeEach
+    void setUp() {
+        userId = 1L;
+        expectedItem = Item.builder()
+                .id(1L)
+                .name("name")
+                .description("description")
+                .available(true)
+                .owner(User.builder()
+                        .id(1L)
+                        .build())
+                .build();
+    }
 
 
     @Test
@@ -77,10 +94,6 @@ class ItemServiceImplTest {
                 .thenReturn(itemsUserOwner);
         when(itemMapper.toItemDtoBooking(item, comments))
                 .thenReturn(itemDto);
-//        when(bookingRepository.findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(item.getId(), currentDateTime))
-//                .thenReturn(Optional.of(new Booking()));
-//        when(bookingRepository.findFirstByItem_IdAndStartDateAfterOrderByEndDateAsc(item.getId(), currentDateTime))
-//                .thenReturn(Optional.of(new Booking()));
 
         List<ItemDtoWithBooking> actualList = itemService.getAllItems(userId, PAGE, SIZE);
 
@@ -91,15 +104,10 @@ class ItemServiceImplTest {
         inOrder.verify(commentRepository).findCommentsByUser_Id(userId);
         inOrder.verify(itemMapper)
                 .toItemDtoBooking(item, comments);
-//        inOrder.verify(bookingRepository)
-//                .findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(item.getId(), currentDateTime);
-//        inOrder.verify(bookingRepository)
-//                .findFirstByItem_IdAndStartDateAfterOrderByEndDateAsc(item.getId(), currentDateTime);
     }
 
     @Test
     void getItemById_whenItemFound_thenReturnedItemDtoWithBooking() {
-        long userId = 1L;
         Item expectedItem = new Item();
         List<CommentDto> comments = new ArrayList<>();
         expectedItem.setId(1L);
@@ -119,7 +127,6 @@ class ItemServiceImplTest {
 
     @Test
     void getItemById_whenUserNotOwner_thenReturnedItemsWithoutBookingsInfo() {
-        long userId = 1L;
         Item expectedItem = new Item();
         List<CommentDto> comments = new ArrayList<>();
         expectedItem.setId(1L);
@@ -141,7 +148,6 @@ class ItemServiceImplTest {
 
     @Test
     void createItem_whenUserExistsAndItemExists_thenSavedItem() {
-        long userId = 1L;
         ItemRequest request = new ItemRequest();
         request.setId(1L);
         User user = User.builder().id(userId).build();
@@ -160,7 +166,6 @@ class ItemServiceImplTest {
 
     @Test
     void createItem_whenUserExistsAndItemNotExists_thenSavedItem() {
-        long userId = 1L;
         ItemRequest request = new ItemRequest();
         request.setId(1L);
         User user = User.builder().id(userId).build();
@@ -177,7 +182,6 @@ class ItemServiceImplTest {
 
     @Test
     void createItem_whenUserNotExists_thenReturnedThrows() {
-        long userId = 1L;
         Item expectedItem = new Item();
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
@@ -187,16 +191,6 @@ class ItemServiceImplTest {
 
     @Test
     void updateItem_whenAllValidProperties_thenUpdateItem() {
-        long userId = 1L;
-        Item expectedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .available(true)
-                .owner(User.builder()
-                        .id(1L)
-                        .build())
-                .build();
         ItemRequest request = new ItemRequest();
         request.setId(1L);
         User user = User.builder().id(userId).build();
@@ -214,17 +208,7 @@ class ItemServiceImplTest {
 
     @Test
     void updateItem_whenItemIdNotFound_thenReturnedThrown() {
-        long userId = 1L;
         long anyItemId = 100L;
-        Item expectedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .available(true)
-                .owner(User.builder()
-                        .id(1L)
-                        .build())
-                .build();
         ItemRequest request = new ItemRequest();
         request.setId(1L);
         expectedItem.setItemRequest(request);
@@ -236,17 +220,7 @@ class ItemServiceImplTest {
 
     @Test
     void updateItem_whenOwnerNotFound_thenReturnedThrown() {
-        long userId = 1L;
         long anyItemId = 1L;
-        Item expectedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .available(true)
-                .owner(User.builder()
-                        .id(1L)
-                        .build())
-                .build();
         ItemRequest request = new ItemRequest();
         request.setId(1L);
         expectedItem.setItemRequest(request);
@@ -259,17 +233,7 @@ class ItemServiceImplTest {
 
     @Test
     void updateItem_whenDataNewItemIsEmpty_thenUpdateItem() {
-        long userId = 1L;
         long anyItemId = 1L;
-        Item expectedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .available(true)
-                .owner(User.builder()
-                        .id(1L)
-                        .build())
-                .build();
         Item newItem = Item.builder()
                 .id(1L)
                 .build();
