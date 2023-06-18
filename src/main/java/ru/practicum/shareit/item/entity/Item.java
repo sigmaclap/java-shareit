@@ -30,9 +30,4 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id")
     private ItemRequest itemRequest;
-
-    public Item(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 }

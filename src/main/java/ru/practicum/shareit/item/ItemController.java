@@ -14,6 +14,8 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.validated.Marker;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +31,15 @@ public class ItemController {
     private static final String REQUEST_HEADER_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @GetMapping
-    public List<ItemDtoWithBooking> getAllItems(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
-        return service.getAllItems(userId);
+    public List<ItemDtoWithBooking>
+    getAllItems(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
+                @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) Integer limit,
+                @RequestParam(required = false, defaultValue = "20") @Min(1) @Max(50) Integer size) {
+        return service.getAllItems(userId, limit, size);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoWithBooking getItemById(@PathVariable("itemId") Long itemId,
+    public ItemDtoWithBooking getItemById(@PathVariable Long itemId,
                                           @RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
         return service.getItemById(itemId, userId);
     }
@@ -43,21 +48,24 @@ public class ItemController {
     @Validated(Marker.OnCreate.class)
     public ItemDto createItem(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                               @Valid @RequestBody ItemDto itemDto) {
-        Item item = mapper.toItem(itemDto);
+        Item item = mapper.toItem(itemDto, userId);
         return mapper.toItemDto(service.createItem(userId, item));
     }
 
     @PatchMapping("/{itemId}")
     @Validated(Marker.OnUpdate.class)
     public ItemDto updateItem(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
-                              @Valid @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId) {
-        Item item = mapper.toItem(itemDto);
+                              @Valid @RequestBody ItemDto itemDto, @PathVariable Long itemId) {
+        Item item = mapper.toItem(itemDto, userId);
         return mapper.toItemDto(service.updateItem(userId, item, itemId));
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItemForText(@RequestParam("text") String text) {
-        return service.searchItemForText(text).stream()
+    public List<ItemDto>
+    searchItemForText(@RequestParam String text,
+                      @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) Integer limit,
+                      @RequestParam(required = false, defaultValue = "20") @Min(1) @Max(50) Integer size) {
+        return service.searchItemForText(text, limit, size).stream()
                 .map(mapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -65,7 +73,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                                     @Valid @RequestBody CommentDtoRequest commentDtoRequest,
-                                    @PathVariable("itemId") Long itemId) {
+                                    @PathVariable Long itemId) {
         Comment comment = commentMapper.toComment(commentDtoRequest);
         return commentMapper.toCommentDto(service.createComment(userId, comment, itemId));
     }

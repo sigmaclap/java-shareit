@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exceptions;
 
+import lombok.Generated;
 import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,6 +13,7 @@ import javax.validation.ConstraintViolationException;
 
 
 @RestControllerAdvice
+@Generated
 public class ErrorHandler {
     @ExceptionHandler({InvalidDataException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -31,7 +33,8 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler({ItemNotFoundException.class, UserNotFoundException.class, BookingNotFoundException.class})
+    @ExceptionHandler({ItemNotFoundException.class, UserNotFoundException.class, BookingNotFoundException.class,
+            ItemRequestNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFilmNotFoundException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());

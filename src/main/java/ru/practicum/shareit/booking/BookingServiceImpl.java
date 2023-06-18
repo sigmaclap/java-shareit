@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.entity.Booking;
 import ru.practicum.shareit.booking.statusEnum.StatusBooking;
@@ -84,8 +85,7 @@ public class BookingServiceImpl implements BookingService {
         User userOwner = booking.getItem().getOwner();
         User userAuthor = booking.getBooker();
         if (userId.equals(userAuthor.getId()) || userId.equals(userOwner.getId())) {
-            return repository.findById(bookingId)
-                    .orElseThrow(() -> new BookingNotFoundException(ERROR_MESSAGE_BOOKING_404));
+            return booking;
         } else {
             log.error("Only the author or owner can check booking details");
             throw new UserNotFoundException("Only the author or owner can check booking details");
@@ -93,15 +93,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllBookingsByAuthor(StatusState state, Long userId) {
+    public List<Booking> getAllBookingsByAuthor(StatusState state, Long userId, Integer limit, Integer size) {
         validateExistsUser(userId);
-        return getAllBookingsWithStateParameter(state, repository.findAllByBooker_IdOrderByStartDateDesc(userId));
+        return getAllBookingsWithStateParameter(state, repository
+                .findAllByBooker_IdOrderByStartDateDesc(userId, PageRequest.of(limit / size, size))
+                .getContent());
     }
 
     @Override
-    public List<Booking> getAllBookingByOwner(StatusState state, Long userId) {
+    public List<Booking> getAllBookingByOwner(StatusState state, Long userId, Integer limit, Integer size) {
         validateExistsUser(userId);
-        List<Booking> listBookingsByOwner = repository.findAllByItem_Owner_IdOrderByStartDateDesc(userId);
+        List<Booking> listBookingsByOwner = repository
+                .findAllByItem_Owner_IdOrderByStartDateDesc(userId, PageRequest.of(limit / size, size))
+                .getContent();
         if (listBookingsByOwner.isEmpty()) {
             log.error("This user has no item");
             throw new ItemNotFoundException("This user has no item");
