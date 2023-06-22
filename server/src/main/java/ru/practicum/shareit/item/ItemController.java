@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentDtoRequest;
@@ -11,7 +10,6 @@ import ru.practicum.shareit.item.entity.Comment;
 import ru.practicum.shareit.item.entity.Item;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.validated.Marker;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +39,6 @@ public class ItemController {
     }
 
     @PostMapping
-    @Validated(Marker.OnCreate.class)
     public ItemDto createItem(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                               @RequestBody ItemDto itemDto) {
         Item item = mapper.toItem(itemDto, userId);
@@ -49,7 +46,6 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    @Validated(Marker.OnUpdate.class)
     public ItemDto updateItem(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                               @RequestBody ItemDto itemDto, @PathVariable Long itemId) {
         Item item = mapper.toItem(itemDto, userId);

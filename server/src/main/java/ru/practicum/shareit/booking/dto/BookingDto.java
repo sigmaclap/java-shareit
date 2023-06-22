@@ -16,18 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BookingDto {
     private Long itemId;
-    @FutureOrPresent
-    @NotNull
+
     private LocalDateTime start;
-    @FutureOrPresent
-    @NotNull
+
     private LocalDateTime end;
 
-    @AssertTrue()
-    private boolean isEndDateLaterStartDate() {
-        if (start != null && end != null) {
-            return end.isAfter(start);
-        }
-        return false;
-    }
 }

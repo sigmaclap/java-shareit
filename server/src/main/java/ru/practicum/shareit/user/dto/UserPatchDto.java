@@ -12,6 +12,5 @@ import javax.validation.constraints.Email;
 public class UserPatchDto {
     private Long id;
     private String name;
-    @Email
     private String email;
 }

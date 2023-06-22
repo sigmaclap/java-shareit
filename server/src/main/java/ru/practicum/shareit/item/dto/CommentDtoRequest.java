@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CommentDtoRequest {
     private Long id;
-    @NotBlank
     private String text;
     private Item item;
     private User user;
