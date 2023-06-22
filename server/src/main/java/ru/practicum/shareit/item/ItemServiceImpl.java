@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.entity.Booking;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -43,6 +44,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
+    @Transactional
     public List<ItemDtoWithBooking> getAllItems(Long userId, Integer limit, Integer size) {
         List<Item> itemsUserOwner = repository
                 .findAllByOwner_IdOrderByIdAsc(userId, PageRequest.of(limit / size, size))
@@ -56,6 +58,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDtoWithBooking getItemById(Long itemId, Long userId) {
         Item item = repository.findById(itemId)
                 .orElseThrow(() -> new ItemNotFoundException("Item not found with id"));
@@ -68,6 +71,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item createItem(Long userId, Item item) {
         item.setOwner(userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id not found")));
@@ -78,6 +82,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item updateItem(Long userId, Item item, Long itemId) {
         validationDataForUpdateItem(item, itemId);
         if (isCheckOwnerItem(userId, itemId)) {

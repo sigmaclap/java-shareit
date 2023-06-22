@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.gateway.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,9 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingDto {
-    private Long itemId;
-    private LocalDateTime start;
-    private LocalDateTime end;
+public class CommentDto {
+    private Long id;
+    private String text;
+    private String authorName;
+    private LocalDateTime created;
 }
