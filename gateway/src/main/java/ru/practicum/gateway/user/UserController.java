@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.gateway.validated.Marker;
 import ru.practicum.gateway.user.dto.UserDto;
+import ru.practicum.gateway.validated.Marker;
 
 import javax.validation.Valid;
 
@@ -19,7 +19,7 @@ public class UserController {
     private final UserClient userClient;
 
     @GetMapping
-    public ResponseEntity<Object> getUsers () {
+    public ResponseEntity<Object> getUsers() {
         log.info("Get users list");
         return userClient.getUsers();
     }
@@ -34,7 +34,7 @@ public class UserController {
     @PatchMapping("/{id}")
     @Validated(Marker.OnUpdate.class)
     public ResponseEntity<Object> updateUser(@Valid @RequestBody UserDto userDto,
-                                              @PathVariable("id") Long userId) {
+                                             @PathVariable("id") Long userId) {
         log.info("Update user {}", userDto);
         return userClient.updateUser(userDto, userId);
     }

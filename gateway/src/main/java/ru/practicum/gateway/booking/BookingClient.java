@@ -8,8 +8,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.gateway.booking.dto.BookingDto;
-import ru.practicum.gateway.client.BaseClient;
 import ru.practicum.gateway.booking.dto.StatusState;
+import ru.practicum.gateway.client.BaseClient;
 
 import java.util.Map;
 

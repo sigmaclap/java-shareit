@@ -8,6 +8,6 @@ class ShareItServerTests {
     // Test class added ONLY to cover main() invocation not covered by application tests.
     @Test
     void contextLoads() {
-        ShareItServer.main(new String[] {});
+        ShareItServer.main(new String[]{});
     }
 }

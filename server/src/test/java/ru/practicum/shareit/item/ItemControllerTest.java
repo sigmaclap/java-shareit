@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.util.NestedServletException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentDtoRequest;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -25,8 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,18 +87,6 @@ class ItemControllerTest {
         verify(service).getAllItems(userId, 0, 20);
     }
 
-//    @SneakyThrows
-//    @Test
-//    void getAllItems_whenNotValidParam_thenReturnedThrowsError() {
-//        when(service.getAllItems(userId, 0, 20)).thenReturn(expectedList);
-//
-//        assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/items")
-//                .header(REQUEST_HEADER_SHARER_USER_ID, userId)
-//                .param("from", "-1")
-//                .param("size", "20")));
-//        verify(service, never()).getAllItems(userId, 0, 20);
-//    }
-
     @SneakyThrows
     @Test
     void getItemById_whenValidData_thenReturnedItemStatusCode200() {
@@ -137,19 +124,6 @@ class ItemControllerTest {
         checkEqualsResult(itemDto, result);
         verify(service).createItem(userId, item);
     }
-
-//    @SneakyThrows
-//    @Test
-//    void createItem_whenInvalidDataItem_thenReturnedThrowsError() {
-//        assertThrows(NestedServletException.class, () -> mockMvc.perform(post("/items")
-//                .content(objectMapper.writeValueAsString(nullableItemDto))
-//                .characterEncoding(StandardCharsets.UTF_8)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .header(REQUEST_HEADER_SHARER_USER_ID, userId)));
-//
-//        verify(service, never()).createItem(userId, item);
-//    }
 
     @SneakyThrows
     @Test

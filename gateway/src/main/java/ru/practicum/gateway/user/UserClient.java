@@ -13,6 +13,7 @@ import ru.practicum.gateway.user.dto.UserDto;
 @Service
 public class UserClient extends BaseClient {
     private static final String API_PREFIX = "/users";
+
     @Autowired
     public UserClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(

@@ -55,7 +55,7 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto>
     searchItemForText(@RequestParam String text,
-                      @RequestParam(name = "from", defaultValue = "0")Integer limit,
+                      @RequestParam(name = "from", defaultValue = "0") Integer limit,
                       @RequestParam(defaultValue = "20") Integer size) {
         return service.searchItemForText(text, limit, size).stream()
                 .map(mapper::toItemDto)

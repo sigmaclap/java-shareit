@@ -56,7 +56,7 @@ public class ItemController {
     public ResponseEntity<Object>
     searchItemForText(@RequestParam String text,
                       @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer limit,
-                      @RequestParam( defaultValue = "20") @Min(1) @Max(50) Integer size) {
+                      @RequestParam(defaultValue = "20") @Min(1) @Max(50) Integer size) {
         log.info("Get items with text {}, from={}, size={}", text, limit, size);
         return itemClient.searchItemForText(text, limit, size);
     }

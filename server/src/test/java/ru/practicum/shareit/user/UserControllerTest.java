@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserPatchDto;
 import ru.practicum.shareit.user.entity.User;
@@ -20,11 +19,11 @@ import ru.practicum.shareit.user.mapper.UserPatchMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -108,20 +107,6 @@ class UserControllerTest {
         checkEqualsResult(userDto, result);
     }
 
-//    @SneakyThrows
-//    @Test
-//    void createUser_whenUserIsNotValid_thenReturnedBadRequestStatusCode400() {
-//        User userToCreate = new User();
-//        when(service.createUser(userToCreate)).thenReturn(userToCreate);
-//
-//        mockMvc.perform(post("/users")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(userToCreate)))
-//                .andDo(print())
-//                .andExpect(status().is(400));
-//        verify(service, never()).createUser(userToCreate);
-//    }
-
     @SneakyThrows
     @Test
     void updateUser_whenValidData_thenUpdateUserStatusCode200() {
@@ -160,34 +145,6 @@ class UserControllerTest {
         checkEqualsResult(userDto, result);
         verify(service).updateUser(userToSave, userId);
     }
-
-//    @SneakyThrows
-//    @Test
-//    void updateUser_whenNotValidEmailUser_thenUpdateUserStatusCode400() {
-//        UserPatchDto userToCreate = UserPatchDto.builder()
-//                .id(1L)
-//                .name("name")
-//                .email("email")
-//                .build();
-//        User userToSave = new User();
-//        when(patchMapper.toUser(userToCreate, userId)).thenReturn(userToSave);
-//        when(service.updateUser(userToSave, userId)).thenReturn(userToSave);
-//        when(userMapper.toUserDto(userToSave)).thenReturn(userDto);
-//
-//        Object ex = Objects.requireNonNull(mockMvc.perform(patch("/users/{id}", userId)
-//                                .content(objectMapper.writeValueAsString(userToCreate))
-//                                .characterEncoding(StandardCharsets.UTF_8)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .accept(MediaType.APPLICATION_JSON))
-//                        .andDo(print())
-//                        .andExpect(status().is(400))
-//                        .andReturn()
-//                        .getResolvedException())
-//                .getClass();
-//
-//        assertEquals(MethodArgumentNotValidException.class, ex);
-//        verify(service, never()).updateUser(userToSave, userId);
-//    }
 
     @SneakyThrows
     @Test

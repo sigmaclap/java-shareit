@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.entity.Booking;
@@ -23,10 +22,10 @@ import ru.practicum.shareit.booking.statusEnum.StatusState;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -76,23 +75,6 @@ class BookingControllerTest {
         verify(service).createBookingRequest(booking, userId);
     }
 
-//    @SneakyThrows
-//    @Test
-//    void createBookingRequest_whenNotValidDataDtoRequest_thenReturnedThrows() {
-//        BookingDto notValidDto = new BookingDto();
-//        notValidDto.setStart(LocalDateTime.now().minusDays(10));
-//        notValidDto.setEnd(LocalDateTime.now().minusDays(1));
-//
-//        Object result = Objects.requireNonNull(performPost(notValidDto)
-//                        .andDo(print())
-//                        .andExpect(status().is(400))
-//                        .andReturn()
-//                        .getResolvedException())
-//                .getClass();
-//
-//        assertEquals(MethodArgumentNotValidException.class, result);
-//        verify(service, never()).createBookingRequest(booking, userId);
-//    }
 
     @SneakyThrows
     @Test

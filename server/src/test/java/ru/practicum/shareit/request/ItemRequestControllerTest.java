@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.util.NestedServletException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseDto;
 import ru.practicum.shareit.request.entity.ItemRequest;
@@ -22,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -79,19 +78,6 @@ class ItemRequestControllerTest {
         checkEqualsResult(itemResponseDto, result);
         verify(itemRequestService).createItemRequest(itemRequest);
     }
-
-//    @SneakyThrows
-//    @Test
-//    void createItemRequest_whenDataRequestNotValid_thenReturnedBadRequestStatusCode400() {
-//        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-//                .description(null)
-//                .build();
-//
-//        performPost(itemRequestDto)
-//                .andExpect(status().is(400));
-//
-//        verify(itemRequestService, never()).createItemRequest(itemRequest);
-//    }
 
     @SneakyThrows
     @Test
@@ -156,36 +142,6 @@ class ItemRequestControllerTest {
         checkEqualsResult(listDtoResponse, result);
         verify(itemRequestService).findAllUsersRequests(userId, 0, 20);
     }
-
-//    @SneakyThrows
-//    @Test
-//    void findAllUsersRequests_whenNotValidFrom_thenReturnedThrowsErrorNestedServletException() {
-//        assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/requests/all")
-//                .header(REQUEST_HEADER_SHARER_USER_ID, userId)
-//                .param("from", "-1")
-//                .param("size", "20")));
-//        verify(itemRequestService, never()).findAllUsersRequests(userId, 0, 20);
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void findAllUsersRequests_whenNotValidSize_thenReturnedThrowsErrorNestedServletException() {
-//        assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/requests/all")
-//                .header(REQUEST_HEADER_SHARER_USER_ID, userId)
-//                .param("from", "0")
-//                .param("size", "0")));
-//        verify(itemRequestService, never()).findAllUsersRequests(userId, 0, 20);
-//    }
-
-//    @SneakyThrows
-//    @Test
-//    void findAllUsersRequests_whenNotValidSizeGreaterThan50_thenReturnedThrowsErrorNestedServletException() {
-//        assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/requests/all")
-//                .header(REQUEST_HEADER_SHARER_USER_ID, userId)
-//                .param("from", "0")
-//                .param("size", "51")));
-//        verify(itemRequestService, never()).findAllUsersRequests(userId, 0, 20);
-//    }
 
     private ResultActions performPost(Object expected) throws Exception {
         return mockMvc.perform(post("/requests")
