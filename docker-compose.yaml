@@ -23,7 +23,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=admin
 
   db:
-    image: postgres:latest
+    image: postgres:15
     container_name: shareit_db
     volumes:
       - /var/lib/postgresql/data/

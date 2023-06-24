@@ -23,14 +23,14 @@ public class ItemRequestController {
     @GetMapping
     public ResponseEntity<Object>
     getAllItemRequestOwner(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId) {
-        log.info("Get all item request by owner " + userId);
+        log.info("Get all item request by owner={}", userId);
         return itemRequestClient.getAllItemRequestOwner(userId);
     }
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> findRequestItemById(@RequestHeader(REQUEST_HEADER_SHARER_USER_ID) Long userId,
                                                       @PathVariable Long requestId) {
-        log.info("Get item request id: " + requestId);
+        log.info("Get item request={}: ", requestId);
         return itemRequestClient.findRequestItemById(userId, requestId);
     }
 
